@@ -1,0 +1,140 @@
+@startuml
+skinparam class {
+    ClassFontName Arial
+    ClassFontSize 12
+    ClassBackgroundColor White
+    ClassBorderColor Black
+}
+hide circle
+
+class EntidadConsumidora {
+    +String id
+    +String nombre
+    +String tipo
+    +String municipio
+    +{static} void mostrarTodas()
+    +{static} boolean insertar(EntidadConsumidora entidad)
+    -{static} boolean modificar(EntidadConsumidora entidad)
+    -{static} boolean eliminar(String id)
+}
+
+class Bioproducto {
+    +String id
+    +String nombre
+    +String tipo
+    +String descripcion
+    +{static} void mostrarTodos()
+    +{static} boolean insertar(Bioproducto bioproducto)
+    -{static} boolean modificar(Bioproducto bioproducto)
+    -{static} boolean eliminar(String id)
+}
+
+class Cultivo {
+    +String id
+    +String nombre
+    +String variedad
+    +{static} void mostrarTodos()
+    +{static} boolean insertar(Cultivo cultivo)
+    -{static} boolean modificar(Cultivo cultivo)
+    -{static} boolean eliminar(String id)
+}
+
+class Pedido {
+    +String id
+    +String numeroPedido
+    +Date fechaSolicitud
+    +EntidadConsumidora entidad
+    +String estado
+    +{static} void mostrarTodos()
+    +{static} Pedido mostrarPorId(String id)
+    +{static} boolean insertar(Pedido pedido)
+    -{static} boolean modificar(Pedido pedido)
+    -{static} boolean eliminar(String id)
+}
+
+class AplicacionCampo {
+    +String id
+    +Pedido pedido
+    +Bioproducto bioproducto
+    +EntidadConsumidora entidad
+    +Cultivo cultivo
+    +String variedad
+    +Double areaAplicada
+    +String dosisAplicada
+    +String metodoAplicacion
+    +String condicionesClimaticas
+    +{static} void mostrarTodas()
+    +{static} boolean insertar(AplicacionCampo aplicacion)
+    -{static} boolean modificar(AplicacionCampo aplicacion)
+    -{static} boolean eliminar(String id)
+}
+
+class EvaluacionResultado {
+    +String id
+    +AplicacionCampo aplicacion
+    +Date fechaEvaluacion
+    +Double rendimiento
+    +Double incrementoPorcentual
+    +String calidadProducto
+    +Double incidenciaPlagas
+    +Double efectividadControl
+    +String vigorPlanta
+    +String desarrolloVegetativo
+    +Double costoProduccion
+    +String analisisSueloPost
+    +Boolean validado
+    +String investigadorValidador
+    +{static} void mostrarTodos()
+    +{static} boolean insertar(EvaluacionResultado evaluacion)
+    -{static} boolean modificar(EvaluacionResultado evaluacion)
+    -{static} boolean eliminar(String id)
+}
+
+class DiagnosticoCienciaTecnologia {
+    +Integer añoInicioIntroduccion
+    +String resultadoIntroducido
+    +String descripcion
+    +Boolean impactoEconomico
+    +Boolean impactoSocial
+    +Boolean impactoAmbiental
+    +String barreras
+    +EntidadConsumidora procedenciaEntidad
+    +{static} void mostrarTodos()
+    +{static} void filtrarPorAño(Integer año)
+    +{static} boolean insertar(DiagnosticoCienciaTecnologia diagnostico)
+    -{static} boolean modificar(DiagnosticoCienciaTecnologia diagnostico)
+    -{static} boolean eliminar(String id)
+}
+
+class CatalogoAplicacion {
+    +String id
+    +EntidadConsumidora entidad
+    +Bioproducto bioproducto
+    +Cultivo cultivo
+    +String resultado
+    +{static} void mostrarTodos()
+    +{static} void filtrarPorEntidad(String nombreEntidad)
+    +{static} void filtrarPorBioproducto(String bioproductoId)
+    -{static} boolean insertar(CatalogoAplicacion catalogo)
+    -{static} boolean modificar(CatalogoAplicacion catalogo)
+    -{static} boolean eliminar(String id)
+}
+
+' === RELACIONES ===
+DiagnosticoCienciaTecnologia --> EntidadConsumidora
+EvaluacionResultado --> AplicacionCampo
+AplicacionCampo --> Pedido
+AplicacionCampo --> EntidadConsumidora
+AplicacionCampo --> Bioproducto
+AplicacionCampo --> Cultivo
+CatalogoAplicacion --> Bioproducto
+CatalogoAplicacion --> Cultivo
+CatalogoAplicacion --> EntidadConsumidora
+Pedido --> EntidadConsumidora
+
+@enduml
+
+
+
+Nota: + significa que es publico
+      - significa que es privado
