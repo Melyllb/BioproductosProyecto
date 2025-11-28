@@ -6,11 +6,10 @@ El sistema tiene como **objetivo general** apoyar la toma de decisiones estraté
 - Reducir la dependencia de insumos importados,
 - Generalizar los resultados de la ciencia y la técnica en el 100% de los centros productivos.
 
-Este informe detalla **de dónde provienen cada una de las clases del diagrama de clases**, **cómo se derivan de las historias de usuario y las interfaces descritas**, y **cómo se alinean con el documento oficial del programa**. 
 
 ---
 
-## Actores del Sistema
+## **Actores del Sistema**
 
 | **Rol** | **Responsabilidades** | **Historias de Usuario Asociadas** |
 |--------|------------------------|-----------------------------------|
@@ -20,10 +19,55 @@ Este informe detalla **de dónde provienen cada una de las clases del diagrama d
 
 ---
 
-## Interfaces y Derivación a Clases
+## **Correspondencia entre Requisitos Funcionales y el Programa de Bioproductos**
+#### **Interfaz 1 y 2: Gestión de Diagnóstico Científico-Técnico**  
+**Historias de Usuario**: HU #1 (consultar) y HU #2 (registrar)  
+**Tabla del documento original**: **Tabla 6a – “Aplicación de la ciencia y la técnica”** (páginas 11–13)
 
-Cada interfaz descrita en las historias de usuario se traduce directamente en clases del modelo de dominio. A continuación, se muestra la traza **Interfaz → Historia de Usuario → Clase**.
+Estas interfaces permite **consultar y registrar los resultados científico-técnicos introducidos** en el territorio. Los campos clave —*resultado introducido, año de inicio, lugar de generalización, procedencia (provincial/nacional/extranjera), impacto económico/social/ambiental y barreras*— corresponden **exactamente** a las columnas de la **Tabla 6a**, que enumera resultados como *“Incremento de los rendimientos con EcoMic”*, *“Obtención de Quitosano”* o *“Efectividad del Nicosave”*, junto con sus impactos y limitaciones (ej: *“No existe escalado de la producción”*).  
+Esta funcionalidad responde al **objetivo específico 3 del Programa**: *“Generalizar los resultados de la ciencia y la técnica en el 100% de los centros de producción”*.
 
+---
+
+#### **Interfaz 3: Catálogo Consolidado de Bioproductos**  
+**Historia de Usuario**: HU #3  
+**Secciones del documento original**: **Tabla 6a** y **Sección 17 – “Indicadores para la evaluación del impacto”**
+
+Esta interfaz muestra un **resumen consolidado de aplicaciones**, con campos como *entidad, bioproducto, cultivo y resultado (Éxito/Moderado/Fallido)*.  
+- La **combinación “bioproducto + cultivo + entidad”** se deriva directamente de ejemplos en la **Tabla 6a** (ej: *“EcoMic en arroz, maíz, frijol…” aplicado en “Productores”*).  
+- El **“resultado” cualitativo** (Éxito/Moderado/Fallido) se basa en los **indicadores de impacto descritos en la Sección 17**, que miden rendimiento, calidad biológica y reducción de costos.  
+Esta funcionalidad apoya la **toma de decisiones estratégicas** del Director Provincial, en línea con el **objetivo general del Programa**.
+
+---
+
+#### **Interfaz 4 y 5: Registro de Aplicaciones en Campo**  
+**Historias de Usuario**: HU #4 (consultar) y HU #5 (registrar)  
+**Tablas del documento original**: **Tabla 13 – “Resultados de la ciencia”** (páginas 26–29) y **Tabla de Balance de Tierras** (página 35)
+
+Esta interfaz permite al Productor **registrar y consultar aplicaciones detalladas**. Los campos tienen correspondencia directa con el documento:
+- **Cultivo y variedad**: listados en la **Tabla 13** (ej: *“frijol, maíz, arroz, tabaco, viandas”* y variedades como *“INCA LP-5”*).
+- **Área aplicada**: se fundamenta en el **Balance de Tierras** (pág. 35), que detalla la superficie agrícola cultivable (351 527,89 ha).
+- **Condiciones climáticas**: se alinea con el **ODS 13 (Acción por el clima)** y la **Sección 2**, que mencionan la necesidad de adaptación al *“cambio climático”* y a *“fenómenos meteorológicos extremos”*.
+Esta funcionalidad materializa la **implementación operativa** de los resultados de la ciencia descritos en la **Tabla 13**.
+
+---
+
+#### **Interfaz 6 y 7: Evaluación Post-Cosecha**  
+**Historias de Usuario**: HU #6 (consultar) y HU #7 (registrar)  
+**Secciones del documento original**: **Tabla 6a** y **párrafo final de la Sección 5**
+
+Esta interfaz permite **registrar y consultar los resultados técnicos y económicos** tras la cosecha. Los campos se alinean con el documento:
+- **Rendimiento, calidad, incidencia de plagas, efectividad del control y costo de producción** se corresponden con afirmaciones de la **Tabla 6a** y la **Sección 5**, como: *“Se eleva la calidad y sanidad biológica de los productos agrícolas y disminuyen los costos de la producción”*.
+- **Análisis de suelo post-aplicación** se vincula con el **ODS 15.3** (pág. 4), que promueve la *“rehabilitación de suelos degradados”* y la *“degradación neutra de suelo”*.
+Esta funcionalidad cierra el **ciclo científico-productivo**, permitiendo validar y cuantificar el impacto de las aplicaciones, tal como exige el **Plan Nacional de Desarrollo Económico y Social**.
+
+---
+
+
+
+
+
+## **Interfaces y Derivación a Clases**
 ### **Interfaz 1 y 2: Gestión de Diagnóstico Científico-Técnico**
 - **Historias**: HU #1 (Consultar), HU #2 (Registrar)
 - **Clase derivada**: `DiagnosticoCienciaTecnologia`
@@ -52,21 +96,8 @@ Cada interfaz descrita en las historias de usuario se traduce directamente en cl
 
 ---
 
-## Diagrama de Clases
-
-## **Estructura General del Diagrama**
-
-El modelo consta de **8 clases principales**, que representan los **conceptos del dominio agrícola-biotecnológico**:
-- Clases maestras o catálogos: `EntidadConsumidora`, `Bioproducto`, `Cultivo`, `Pedido`.
-- Clases operativas del ciclo productivo: `AplicacionCampo`, `EvaluacionResultado`.
-- Clase estratégica de ciencia y tecnología: `DiagnosticoCienciaTecnologia`.
-- Clase de vista consolidada: `CatalogoAplicacion`.
-
-Cada clase incluye **métodos derivados directamente de las acciones descritas en las historias de usuario**: consultar, registrar, filtrar.
-
----
-
-## **Descripción Detallada de Clases y Métodos**
+## **Diagrama de Clases**
+#### **Descripción Detallada de Clases y Métodos**
 
 ### **`EntidadConsumidora`**
 - **Propósito**: Representa a las unidades productivas que consumen bioproductos: UBPC (45), UEB (12), CCS (236), CPA (68), etc. (Tabla 1a del programa).
@@ -112,7 +143,7 @@ Cada clase incluye **métodos derivados directamente de las acciones descritas e
 
 ---
 
-### ** `AplicacionCampo`**
+### **`AplicacionCampo`**
 - **Propósito**: Registra cada aplicación real de un bioproducto en el campo (HU #4, #5).
 - **Atributos**:
   - `variedad`: Específica por aplicación (ej: “INCA LP-5”).
@@ -140,50 +171,42 @@ Cada clase incluye **métodos derivados directamente de las acciones descritas e
 
 ### **`DiagnosticoCienciaTecnologia`**
 - **Propósito**: Documenta los avances científicos y tecnológicos introducidos (HU #1, #2; Tabla 6a del programa).
-- **Atributos**:
-  - `resultadoIntroducido`: Descripción del resultado.
-  - `añoInicioIntroduccion`: Año de generalización.
-  - `procedencia`: “P. del Río”, “Nacional”, “Extranjero”.
-  - `impactoEconomico/Social/Ambiental`: Booleanos.
-  - `barreras`: Texto libre (ej: “No existe escalado de la producción”).
+Atributos
+- `id`: Identificador único.
+- `resultadoIntroducido`: Descripción del resultado científico.
+- `descripcion`: Detalle adicional del diagnóstico.
+- `añoInicioIntroduccion`: Año de generalización (clave para el filtro de HU #1).
+- `procedencia`: “P. del Río”, “Nacional”, “Extranjero” (columnas 4–6 de la Tabla 6a).
+- `impactoEconomico/Social/Ambiental`: Booleanos que indican el tipo de impacto.
+- `barreras`: Obstáculos identificados (ej: “No existe escalado de la producción”).
+- `entidad`: Entidad donde se generalizó el resultado (columna 3 de la Tabla 6a).
 - **Métodos** (derivados de HU #1 y #2):
-  - `+ consultarDiagnosticoPorAño(Integer año): List<DiagnosticoCienciaTecnologia>`: Permite filtrar diagnósticos por año.
-  - `+ registrarNuevoDiagnostico(DiagnosticoCienciaTecnologia diagnostico): void`: Permite registrar un nuevo diagnóstico.
+   - `+ mostrarTodos()`: Listado completo de diagnósticos (HU #1).
+   - `+ filtrarPorAño(...)`: Filtro por año de introducción (HU #1).
+   - `+ insertar(...)`: Registro de nuevo diagnóstico (HU #2).
+   - `- modificar(...)`, `- eliminar(...)`: Privados.
 - **Relaciones**: Asociada a una `EntidadConsumidora`.
 
 ---
 
 ### **`CatalogoAplicacion`**
-- **Propósito**: Provee una vista consolidada para el Director Provincial (HU #3).
-- **Atributos**:
-  - `resultado`: “Éxito”, “Moderado” o “Fallido” (derivado de la evaluación).
-- **Métodos** (derivados de HU #3):
-  - `+ consultarCatalogoConsolidado(): List<CatalogoAplicacion>`: Muestra todos los registros.
-  - `+ filtrarPorEntidad(String nombreEntidad): List<CatalogoAplicacion>`: Filtra dinámicamente por entidad (ej: “UEB Genética Arrocera”).
-  - `+ filtrarPorBioproducto(String bioproductoId): List<CatalogoAplicacion>`: Filtra por bioproducto específico.
-- **Relaciones**: Asociada a `EntidadConsumidora`, `Bioproducto` y `Cultivo`.
+**Propósito**: Provee una **vista consolidada para el Director Provincial MINAG**, tal como se describe en HU #3: _“Catálogo consolidado… con resultado (Éxito/Moderado/Fallido)”_.
 
-> **Nota**: Aunque esta clase existe en el modelo, su implementación ideal es como **vista lógica derivada** de `AplicacionCampo` + `EvaluacionResultado`, no como tabla física.
+ **Atributos**
+- `id`: Identificador único.
+- `entidad`: Entidad consumidora.
+- `bioproducto`: Bioproducto aplicado.
+- `cultivo`: Cultivo objetivo.
+- `resultado`: Estado resumido (“Éxito”, “Moderado”, “Fallido”), derivado de los datos de `EvaluacionResultado`.
 
-
-
-
-
-
+**Métodos**
+- `+ mostrarTodos()`: Muestra todos los registros (HU #3).
+- `+ filtrarPorEntidad(...)`: Búsqueda dinámica por nombre de entidad (HU #3).
+- `+ filtrarPorBioproducto(...)`: Filtro por bioproducto (HU #3).
+- `- insertar(...)`, `- modificar(...)`, `- eliminar(...)`: **Todos privados**, ya que el catálogo es **de solo lectura** y **no se edita directamente**.
 
 
 
----
-
-## **Ciclo de Vida del Objeto y Flujo del Sistema**
-
-El sistema sigue un flujo orientado a objetos coherente con el ciclo científico-productivo descrito en el programa:
-
-1. **Diagnóstico**: Un `DiagnosticoCienciaTecnologia` se asocia a una `EntidadConsumidora`.
-2. **Solicitud**: Una `EntidadConsumidora` crea un `Pedido`.
-3. **Aplicación**: Un `Pedido` da origen a una `AplicacionCampo`.
-4. **Evaluación**: Una `AplicacionCampo` tiene una `EvaluacionResultado`.
-5. **Consolidación**: El sistema genera un `CatalogoAplicacion` derivado (vista) para el Director Provincial.
 
 
 
