@@ -1,126 +1,218 @@
 @startuml
 skinparam class {
-    ClassFontName Arial
-    ClassFontSize 12
-    ClassBackgroundColor White
-    ClassBorderColor Black
+  ClassFontName Arial
+  ClassFontSize 12
+  ClassBackgroundColor White
+  ClassBorderColor Black
 }
 hide circle
 
+
+' ============================================
+'               INTERFACES (VISTAS)
+' ============================================
+
+interface IConsultarDiagnosticos {
+    +mostrarDiagnosticos()
+    +filtrarPorAño(año: Integer)
+    +redirigirAgregar()
+}
+
+interface IRegistrarDiagnostico {
+    +guardarDiagnostico()
+    +validarCampos()
+    +cancelar()
+}
+
+interface IConsultarCatalogo {
+    +mostrarCatalogo()
+    +buscarPorEntidad(nombre: String)
+    +filtrarPorBioproducto(idBio: String)
+}
+
+interface IConsultarAplicacionesCampo {
+    +mostrarAplicaciones()
+    +redirigirAgregar()
+}
+
+interface IRegistrarAplicacionCampo {
+    +guardarAplicacion()
+    +validarCampos()
+    +cancelar()
+}
+
+interface IConsultarResultadosPostCosecha {
+    +mostrarResultados()
+    +redirigirAgregar()
+}
+
+interface IRegistrarResultadoPostCosecha {
+    +guardarResultado()
+    +validarCampos()
+    +cancelar()
+}
+
+
+' ============================================
+'           CONTROLADOR ÚNICO
+' ============================================
+
+class ControladorPrincipal {
+    +List<DiagnosticoCienciaTecnologia> listarDiagnosticos()
+    +List<DiagnosticoCienciaTecnologia> filtrarDiagnosticosPorAño(Integer año)
+    +boolean registrarDiagnostico(DiagnosticoCienciaTecnologia d)
+
+    +List<AplicacionCampo> listarAplicaciones()
+    +boolean registrarAplicacion(AplicacionCampo a)
+
+    +List<EvaluacionResultado> listarResultados()
+    +boolean registrarResultado(EvaluacionResultado r)
+
+    +List<CatalogoAplicacion> listarCatalogo()
+    +List<CatalogoAplicacion> filtrarCatalogoPorEntidad(String nombre)
+    +List<CatalogoAplicacion> filtrarCatalogoPorBioproducto(String idBio)
+}
+
+
+' ============================================
+'      RELACIONES ENTRE INTERFACES Y CONTROLADOR
+' ============================================
+
+IConsultarDiagnosticos ..> ControladorPrincipal : usa
+IRegistrarDiagnostico ..> ControladorPrincipal : usa
+
+IConsultarCatalogo ..> ControladorPrincipal : usa
+
+IConsultarAplicacionesCampo ..> ControladorPrincipal : usa
+IRegistrarAplicacionCampo ..> ControladorPrincipal : usa
+
+IConsultarResultadosPostCosecha ..> ControladorPrincipal : usa
+IRegistrarResultadoPostCosecha ..> ControladorPrincipal : usa
+
+
+' ============================================
+'               CLASES DE DOMINIO (CRUD)
+' ============================================
+
 class EntidadConsumidora {
-    +String id
-    +String nombre
-    +String tipo
-    +String municipio
-    +{static} void mostrarTodas()
-    +{static} boolean insertar(EntidadConsumidora entidad)
-    -{static} boolean modificar(EntidadConsumidora entidad)
-    -{static} boolean eliminar(String id)
+    -String id
+    -String nombre
+    -String tipo
+    -String municipio
+    +List<EntidadConsumidora> mostrarTodas()
+    +boolean insertar(EntidadConsumidora e)
+    +boolean modificar(EntidadConsumidora e)
+    +boolean eliminar(String id)
 }
 
 class Bioproducto {
-    +String id
-    +String nombre
-    +String tipo
-    +String descripcion
-    +{static} void mostrarTodos()
-    +{static} boolean insertar(Bioproducto bioproducto)
-    -{static} boolean modificar(Bioproducto bioproducto)
-    -{static} boolean eliminar(String id)
+    -String id
+    -String nombre
+    -String tipo
+    -String descripcion
+    +List<Bioproducto> mostrarTodos()
+    +boolean insertar(Bioproducto b)
+    +boolean modificar(Bioproducto b)
+    +boolean eliminar(String id)
 }
 
 class Cultivo {
-    +String id
-    +String nombre
-    +String variedad
-    +{static} void mostrarTodos()
-    +{static} boolean insertar(Cultivo cultivo)
-    -{static} boolean modificar(Cultivo cultivo)
-    -{static} boolean eliminar(String id)
+    -String id
+    -String nombre
+    -String variedad
+    +List<Cultivo> mostrarTodos()
+    +boolean insertar(Cultivo c)
+    +boolean modificar(Cultivo c)
+    +boolean eliminar(String id)
 }
 
 class Pedido {
-    +String id
-    +String numeroPedido
-    +Date fechaSolicitud
-    +EntidadConsumidora entidad
-    +String estado
-    +{static} void mostrarTodos()
-    +{static} Pedido mostrarPorId(String id)
-    +{static} boolean insertar(Pedido pedido)
-    -{static} boolean modificar(Pedido pedido)
-    -{static} boolean eliminar(String id)
+    -String id
+    -String numeroPedido
+    -Date fechaSolicitud
+    -EntidadConsumidora entidad
+    -String estado
+    +List<Pedido> mostrarTodos()
+    +Pedido mostrarPorId(String id)
+    +boolean insertar(Pedido p)
+    +boolean modificar(Pedido p)
+    +boolean eliminar(String id)
 }
 
 class AplicacionCampo {
-    +String id
-    +Pedido pedido
-    +Bioproducto bioproducto
-    +EntidadConsumidora entidad
-    +Cultivo cultivo
-    +String variedad
-    +Double areaAplicada
-    +String dosisAplicada
-    +String metodoAplicacion
-    +String condicionesClimaticas
-    +{static} void mostrarTodas()
-    +{static} boolean insertar(AplicacionCampo aplicacion)
-    -{static} boolean modificar(AplicacionCampo aplicacion)
-    -{static} boolean eliminar(String id)
+    -String id
+    -Pedido pedido
+    -Bioproducto bioproducto
+    -EntidadConsumidora entidad
+    -Cultivo cultivo
+    -String variedad
+    -Double areaAplicada
+    -String dosisAplicada
+    -String metodoAplicacion
+    -String condicionesClimaticas
+    +List<AplicacionCampo> mostrarTodas()
+    +boolean insertar(AplicacionCampo a)
+    +boolean modificar(AplicacionCampo a)
+    +boolean eliminar(String id)
 }
 
 class EvaluacionResultado {
-    +String id
-    +AplicacionCampo aplicacion
-    +Date fechaEvaluacion
-    +Double rendimiento
-    +Double incrementoPorcentual
-    +String calidadProducto
-    +Double incidenciaPlagas
-    +Double efectividadControl
-    +String vigorPlanta
-    +String desarrolloVegetativo
-    +Double costoProduccion
-    +String analisisSueloPost
-    +Boolean validado
-    +String investigadorValidador
-    +{static} void mostrarTodos()
-    +{static} boolean insertar(EvaluacionResultado evaluacion)
-    -{static} boolean modificar(EvaluacionResultado evaluacion)
-    -{static} boolean eliminar(String id)
+    -String id
+    -AplicacionCampo aplicacion
+    -Date fechaEvaluacion
+    -Double rendimiento
+    -Double incrementoPorcentual
+    -String calidadProducto
+    -Double incidenciaPlagas
+    -Double efectividadControl
+    -String vigorPlanta
+    -String desarrolloVegetativo
+    -Double costoProduccion
+    -String analisisSueloPost
+    -Boolean validado
+    -String investigadorValidador
+    +List<EvaluacionResultado> mostrarTodos()
+    +boolean insertar(EvaluacionResultado e)
+    +boolean modificar(EvaluacionResultado e)
+    +boolean eliminar(String id)
 }
 
 class DiagnosticoCienciaTecnologia {
-    +Integer añoInicioIntroduccion
-    +String resultadoIntroducido
-    +String descripcion
-    +Boolean impactoEconomico
-    +Boolean impactoSocial
-    +Boolean impactoAmbiental
-    +String barreras
-    +EntidadConsumidora procedenciaEntidad
-    +{static} void mostrarTodos()
-    +{static} void filtrarPorAño(Integer año)
-    +{static} boolean insertar(DiagnosticoCienciaTecnologia diagnostico)
-    -{static} boolean modificar(DiagnosticoCienciaTecnologia diagnostico)
-    -{static} boolean eliminar(String id)
+    -String id
+    -Integer añoInicioIntroduccion
+    -String resultadoIntroducido
+    -String lugarGeneralizacion
+    -EntidadConsumidora procedenciaEntidad
+    -Boolean impactoEconomico
+    -Boolean impactoSocial
+    -Boolean impactoAmbiental
+    -String barreras
+    +List<DiagnosticoCienciaTecnologia> mostrarTodos()
+    +List<DiagnosticoCienciaTecnologia> filtrarPorAño(Integer año)
+    +boolean insertar(DiagnosticoCienciaTecnologia d)
+    +boolean modificar(DiagnosticoCienciaTecnologia d)
+    +boolean eliminar(String id)
 }
 
 class CatalogoAplicacion {
-    +String id
-    +EntidadConsumidora entidad
-    +Bioproducto bioproducto
-    +Cultivo cultivo
-    +String resultado
-    +{static} void mostrarTodos()
-    +{static} void filtrarPorEntidad(String nombreEntidad)
-    +{static} void filtrarPorBioproducto(String bioproductoId)
-    -{static} boolean insertar(CatalogoAplicacion catalogo)
-    -{static} boolean modificar(CatalogoAplicacion catalogo)
-    -{static} boolean eliminar(String id)
+    -String id
+    -EntidadConsumidora entidad
+    -Bioproducto bioproducto
+    -Cultivo cultivo
+    -String resultado
+    +List<CatalogoAplicacion> mostrarTodos()
+    +List<CatalogoAplicacion> filtrarPorEntidad(String nombre)
+    +List<CatalogoAplicacion> filtrarPorBioproducto(String idBio)
+    +boolean insertar(CatalogoAplicacion c)
+    +boolean modificar(CatalogoAplicacion c)
+    +boolean eliminar(String id)
 }
 
-' === RELACIONES ===
+
+' ============================================
+'               RELACIONES DEL MODELO
+' ============================================
+
 DiagnosticoCienciaTecnologia --> EntidadConsumidora
 EvaluacionResultado --> AplicacionCampo
 AplicacionCampo --> Pedido
@@ -132,9 +224,17 @@ CatalogoAplicacion --> Cultivo
 CatalogoAplicacion --> EntidadConsumidora
 Pedido --> EntidadConsumidora
 
+' ============================================
+'   CONTROLADOR PRINCIPAL USA TODAS LAS CLASES
+' ============================================
+
+ControladorPrincipal ..> DiagnosticoCienciaTecnologia : usa
+ControladorPrincipal ..> AplicacionCampo : usa
+ControladorPrincipal ..> EvaluacionResultado : usa
+ControladorPrincipal ..> CatalogoAplicacion : usa
+ControladorPrincipal ..> Bioproducto : usa
+ControladorPrincipal ..> Cultivo : usa
+ControladorPrincipal ..> EntidadConsumidora : usa
+ControladorPrincipal ..> Pedido : usa
+
 @enduml
-
-
-
-Nota: + significa que es publico
-      - significa que es privado
