@@ -99,111 +99,390 @@ Esta funcionalidad cierra el **ciclo científico-productivo**, permitiendo valid
 ## **Diagrama de Clases**
 #### **Descripción Detallada de Clases y Métodos**
 
-### **`EntidadConsumidora`**
-- **Propósito**: Representa a las unidades productivas que consumen bioproductos: UBPC (45), UEB (12), CCS (236), CPA (68), etc. (Tabla 1a del programa).
-- **Atributos**:
-  - `id`: Identificador único.
-  - `nombre`: Ej: “UEB Genética Arrocera”.
-  - `tipo`: “UBPC”, “UEB”, “CCS”, etc.
-  - `municipio`: Localización geográfica.
-- **Relaciones**: Usada por `Pedido`, `AplicacionCampo`, `DiagnosticoCienciaTecnologia` y `CatalogoAplicacion`.
+El diagrama de clases implementa un patrón MVC simplificado que mapea 1:1 con las historias de usuario. Cada clase de dominio representa una tabla lógica requerida por las HU, contiene los atributos necesarios para mostrar y validar la información (p. ej. `añoInicioIntroduccion` para filtrado en HU#1), y expone métodos CRUD para persistencia. El controlador actúa como mediador entre las vistas y los modelos, proporcionando datos preparados para UI (listas, selects, filtros) y centralizando reglas de orquestación (p. ej. validación compuesta).
+## 1) **DiagnosticoCienciaTecnologia**
+
+**Historias de usuario relacionadas:**
+
+- HU #1: Consultar Diagnóstico Científico-Técnico de Bioproductos
+    
+- HU #2: Registrar Nuevo Diagnóstico Científico-Técnico
+    
+
+**Responsabilidad:**  
+Representa un diagnóstico científico-técnico registrado en el sistema (resultado introducido, año, procedencia, impactos y barreras). Es la entidad principal para listar, filtrar por año y crear diagnósticos.
+
+**Atributos (por qué y uso):**
+
+- `id` — identificador único de la fila.
+    
+- `añoInicioIntroduccion` — necesario para filtrado por año (HU#1 exige filtro).
+    
+- `resultadoIntroducido` — texto principal que describe el resultado (se muestra en la tabla).
+    
+- `lugarGeneralizacion` — mostrado en la tabla.
+    
+- `procedenciaEntidad` (EntidadConsumidora) — relación que indica origen/procedencia.
+    
+- `impactoEconomico`, `impactoSocial`, `impactoAmbiental` — booleans para marcar X en la columna “Impacto”.
+    
+- `barreras` — texto opcional para mostrar barreras, puede estar vacío.
+    
+
+**Métodos (por qué y uso):**
+
+- `mostrarTodos()` — devuelve la lista completa para cargar la vista de consulta (HU#1).
+    
+- `filtrarPorAño(Integer año)` — requisito explícito de HU#1.
+    
+- `insertar(DiagnosticoCienciaTecnologia d)` — operación usada por la interfaz de registro (HU#2).
+    
+- `modificar(...)` / `eliminar(String id)` — métodos CRUD generales para administración (pueden ser necesarios en roles administrativos).
+    
+
+**Relaciones relevantes:**
+
+- `DiagnosticoCienciaTecnologia --> EntidadConsumidora` porque la procedencia es una entidad (HU1 solicita mostrar procedencia).
+    
+
+**Interacción con controlador y vista:**
+
+- La vista (IConsultarDiagnosticos) llama al `ControladorPrincipal.listarDiagnosticos()` o `filtrarDiagnosticosPorAño(año)`.
+    
+- El controlador invoca `DiagnosticoCienciaTecnologia.mostrarTodos()` o `filtrarPorAño(año)` y formatea/entrega los datos a la tabla.
+
+
+
+**Validaciones prácticas:**
+
+- `añoInicioIntroduccion` rango permitido (ej. 2015–2025).
+    
+- `resultadoIntroducido` obligatorio.
+    
+- Al insertar, validar existencia/consistencia de `procedenciaEntidad`.
+    
 
 ---
 
-### **`Bioproducto`**
-- **Propósito**: Define los insumos biológicos disponibles: EcoMic, Trichoderma, Nicosave, etc. (Sección 4.3 y Tabla 13 del programa).
-- **Atributos**:
-  - `id`: Identificador único.
-  - `nombre`: “Trichoderma harzianum”.
-  - `tipo`: “Biofertilizante”, “Bioplaguicida”, “Bioestimulante”.
-  - `descripcion`: Detalles técnicos del producto.
-- **Relaciones**: Usada en `AplicacionCampo` y `CatalogoAplicacion`.
+## 2) **EntidadConsumidora**
+
+**Historias de usuario relacionadas:**
+
+- HU #3: Consultar Catálogo Consolidado (usa entidades para buscar/filtrar)
+    
+- HU #4 / HU #5: Aplicaciones en Campo (selector de entidad consumidora)
+    
+- También usada en HU#1 y HU#2 como procedencia.
+    
+
+**Responsabilidad:**  
+Catálogo maestro de organizaciones/entidades que consumen los bioproductos (UEB, productores, CREE, etc.). Se usa como lista desplegable y para filtros en varias vistas.
+
+**Atributos (por qué y uso):**
+
+- `id`, `nombre`, `tipo`, `municipio` — información para mostrar en el catálogo consolidado.
+    
+
+**Métodos (por qué y uso):**
+
+- `mostrarTodas()` — usado por el controlador para llenar combos y filtros.
+    
+- `insertar/modificar/eliminar()` — útiles en administración (no expuestos a usuarios finales).
+    
+
+**Relaciones relevantes:**
+
+- Relacionada con `Pedido`, `AplicacionCampo`, `CatalogoAplicacion`, `DiagnosticoCienciaTecnologia`.
+    
+
+**Interacción con controlador y vista:**
+
+- El catálogo consolidado (HU#3) usa entidades como filtro: vista usa `ctrl.filtrarCatalogoPorEntidad(nombre)` que internamente usa `CatalogoAplicacion.filtrarPorEntidad()` y puede usar `EntidadConsumidora` para validar nombres/IDs.
+    
+
+**Validaciones prácticas:**
+
+- `nombre` obligatorio.
+    
+- Evitar duplicados por nombre/tipo.
+    
 
 ---
 
-### **`Cultivo`**
-- **Propósito**: Representa los cultivos agrícolas objetivo: arroz, maíz, frijol, tabaco, etc. (Tabla 6a del programa).
-- **Atributos**:
-  - `id`: Identificador único.
-  - `nombre`: “Arroz”, “Maíz”.
-  - `variedad`: “INCA LP-5”, “Corojo” (aunque también aparece en `AplicacionCampo`, se mantiene aquí por el diseño original).
-- **Relaciones**: Contexto de `AplicacionCampo` y `CatalogoAplicacion`.
+## 3) **Bioproducto**
+
+**Historias de usuario relacionadas:**
+
+- HU #3 (filtrado por bioproducto en catálogo)
+    
+- HU #4 / HU #5 (selector en registro de aplicación)
+    
+- Catalogado como entidad referencial.
+    
+
+**Responsabilidad:**  
+Define los bioproductos disponibles (EcoMic, QuitoMax, etc.) para usos en aplicaciones y catálogos.
+
+**Atributos:**
+
+- `id`, `nombre`, `tipo`, `descripcion` — necesarios para mostrar en selects y detallar en tablas.
+    
+
+**Métodos:**
+
+- CRUD: `mostrarTodos()`, `insertar()`, `modificar()`, `eliminar()`.
+    
+
+**Relaciones:**
+
+- `CatalogoAplicacion --> Bioproducto` y `AplicacionCampo --> Bioproducto`.
+    
+
+**Interacción:**
+
+- Vista de registro (HU#5) solicita `ctrl.listarBioproductos()` → `Bioproducto.mostrarTodos()` para poblar el dropdown.
+    
+- Catalogo y reportes usan `filtrarPorBioproducto`.
+    
+
+**Validaciones:**
+
+- `nombre` obligatorio; comprobar que `tipo` sea válido (según catálogo).
+    
 
 ---
 
-### **`Pedido`**
-- **Propósito**: Registra la solicitud formal de bioproductos por parte de una entidad.
-- **Atributos**:
-  - `id`: Identificador único.
-  - `numeroPedido`: Número de control.
-  - `fechaSolicitud`: Fecha de la solicitud.
-  - `entidad`: Referencia a `EntidadConsumidora`.
-  - `estado`: “Aprobado”, “Pendiente”, etc.
-- **Relaciones**: Pertenece a una `EntidadConsumidora` y origina una o más `AplicacionCampo`.
+## 4) **Cultivo**
+
+**Historias de usuario relacionadas:**
+
+- HU #3 (catalogo por cultivo)
+    
+- HU #4 / HU #5 (selección de cultivo en registro de aplicación)
+    
+
+**Responsabilidad:**  
+Catálogo de cultivos (arroz, maíz, frijol, etc.) usado para clasificar aplicaciones y resultados.
+
+**Atributos:**
+
+- `id`, `nombre`, `variedad` — info para selects y filtros.
+    
+
+**Métodos:**
+
+- `mostrarTodos()` y CRUD.
+    
+
+**Relaciones:**
+
+- `AplicacionCampo --> Cultivo`
+    
+- `CatalogoAplicacion --> Cultivo`
+    
+
+**Interacción:**
+
+- Para registrar una aplicación, la vista pide lista de cultivos al controlador que llama a `Cultivo.mostrarTodos()`.
+    
+
+**Validaciones:**
+
+- `nombre` obligatorio; `variedad` opcional o con longitud máxima.
+    
 
 ---
 
-### **`AplicacionCampo`**
-- **Propósito**: Registra cada aplicación real de un bioproducto en el campo (HU #4, #5).
-- **Atributos**:
-  - `variedad`: Específica por aplicación (ej: “INCA LP-5”).
-  - `areaAplicada`, `dosisAplicada`, `metodoAplicacion`, `condicionesClimaticas`, `fechaAplicacion`.
-- **Métodos** (derivados de HU #4 y #5):
-  - `+ consultarHistorialAplicaciones(): List<AplicacionCampo>`: Permite al Productor de Base ver todas sus aplicaciones registradas.
-  - `+ registrarNuevaAplicacion(AplicacionCampo aplicacion): void`: Permite registrar una nueva aplicación.
-- **Relaciones**: Depende de `Pedido`, `Bioproducto`, `EntidadConsumidora`, `Cultivo`.
+## 5) **Pedido**
+
+**Historias de usuario relacionadas:**
+
+- HU #4 / HU #5 (el formulario de aplicación asocia una aplicación a un pedido)
+    
+
+**Responsabilidad:**  
+Representa la solicitud/orden que motiva la aplicación en campo.
+
+**Atributos:**
+
+- `id`, `numeroPedido`, `fechaSolicitud`, `entidad` (EntidadConsumidora), `estado`.
+    
+
+**Métodos:**
+
+- `mostrarTodos()` → útil si el productor selecciona a qué pedido pertenece la aplicación.
+    
+- `mostrarPorId(String id)` → obtener detalles para mostrar en formularios o validaciones.
+    
+- CRUD.
+    
+
+**Relaciones:**
+
+- `Pedido --> EntidadConsumidora` (pedido está ligado a una entidad).
+    
+- `AplicacionCampo --> Pedido` (aplicación pertenece a un pedido).
+    
+
+**Interacción:**
+
+- Al abrir el formulario de registrar aplicación (HU#5), la vista obtiene la lista de pedidos disponibles para ese productor vía `ctrl.listarPedidos()` que llama a `Pedido.mostrarTodos()` (o filtra por usuario).
+    
+- Al guardar una aplicación, `AplicacionCampo.insertar()` puede validar que `pedido.id` exista y que el `estado` del pedido permita nuevas aplicaciones.
+    
+
+**Validaciones:**
+
+- Fecha en formato correcto; `numeroPedido` único o bien validado; `estado` en valores permitidos.
+    
 
 ---
 
-### **`EvaluacionResultado`**
-- **Propósito**: Documenta los resultados post-cosecha de una aplicación (HU #6, #7).
-- **Atributos**:
-  - `rendimiento`, `incrementoPorcentual`, `calidadProducto`.
-  - `incidenciaPlagas`, `efectividadControl`.
-  - `vigorPlanta`, `desarrolloVegetativo`.
-  - `costoProduccion`, `analisisSueloPost`, `validado`, `investigadorValidador`.
-- **Métodos** (derivados de HU #6 y #7):
-  - `+ consultarResultadosPostCosecha(): List<EvaluacionResultado>`: Permite al Productor consultar sus resultados.
-  - `+ registrarEvaluacionPostCosecha(EvaluacionResultado evaluacion): void`: Permite registrar una nueva evaluación.
-- **Relaciones**: Asociada a una única `AplicacionCampo`.
+## 6) **AplicacionCampo**
+
+**Historias de usuario relacionadas:**
+
+- HU #4: Consultar Historial de Aplicaciones de Bioproductos en Campo
+    
+- HU #5: Registrar Nueva Aplicación de Bioproducto en Campo
+    
+
+**Responsabilidad:**  
+Registra una aplicación real en el campo: qué bioproducto, en qué cultivo, área, dosis, método y condiciones climáticas; sirve como entidad central para historial y para relacionar evaluaciones post-cosecha.
+
+**Atributos (clave):**
+
+- `id`, `pedido`, `bioproducto`, `entidad`, `cultivo`, `variedad`, `areaAplicada`, `dosisAplicada`, `metodoAplicacion`, `condicionesClimaticas`.
+    
+
+**Métodos:**
+
+- `mostrarTodas()` — para cargar la tabla de historial (HU#4). Debe soportar paginación y formato numérico (2 decimales para área/dosis).
+    
+- `insertar(AplicacionCampo a)` — validar campos obligatorios y rangos; persistir.
+    
+- `modificar` / `eliminar` — disponibles para administración.
+    
+
+**Relaciones:**
+
+- Con `Pedido`, `Bioproducto`, `EntidadConsumidora`, `Cultivo`, `EvaluacionResultado`.
+    
+
+**Interacción con controlador y vista:**
+
+- Vista pide datos maestros (pedidos, bioproductos, cultivos, entidades) al controlador para poblar selects.
+    
+- Al guardar, la vista invoca `ControladorPrincipal.registrarAplicacion(a)`; el controlador valida reglas de negocio (ej. `areaAplicada` dentro de 0.01–1000 ha) y luego llama `AplicacionCampo.insertar(a)`.
+    
+- La tabla de historial se llena con `ctrl.listarAplicaciones()` → `AplicacionCampo.mostrarTodas()`. La vista no realiza filtrados complejos; el controlador puede ofrecer filtros si se requiere (por fecha, por bioproducto, etc.).
+    
+
+**Validaciones prácticas:**
+
+- `areaAplicada` rango (0.01–1000), formato 2 decimales.
+    
+- `dosisAplicada` formato (ej. regex para "N L/ha" o "N kg/ha" si se requiere).
+    
+- Campos select obligatorios: Pedido, Bioproducto, Entidad, Cultivo, Método de aplicación.
+    
 
 ---
 
-### **`DiagnosticoCienciaTecnologia`**
-- **Propósito**: Documenta los avances científicos y tecnológicos introducidos (HU #1, #2; Tabla 6a del programa).
-Atributos
-- `id`: Identificador único.
-- `resultadoIntroducido`: Descripción del resultado científico.
-- `descripcion`: Detalle adicional del diagnóstico.
-- `añoInicioIntroduccion`: Año de generalización (clave para el filtro de HU #1).
-- `procedencia`: “P. del Río”, “Nacional”, “Extranjero” (columnas 4–6 de la Tabla 6a).
-- `impactoEconomico/Social/Ambiental`: Booleanos que indican el tipo de impacto.
-- `barreras`: Obstáculos identificados (ej: “No existe escalado de la producción”).
-- `entidad`: Entidad donde se generalizó el resultado (columna 3 de la Tabla 6a).
-- **Métodos** (derivados de HU #1 y #2):
-   - `+ mostrarTodos()`: Listado completo de diagnósticos (HU #1).
-   - `+ filtrarPorAño(...)`: Filtro por año de introducción (HU #1).
-   - `+ insertar(...)`: Registro de nuevo diagnóstico (HU #2).
-   - `- modificar(...)`, `- eliminar(...)`: Privados.
-- **Relaciones**: Asociada a una `EntidadConsumidora`.
+## 7) **EvaluacionResultado**
+
+**Historias de usuario relacionadas:**
+
+- HU #6: Consultar Resultados Post-Cosecha
+    
+- HU #7: Registrar Resultados Post-Cosecha
+    
+
+**Responsabilidad:**  
+Almacenar los resultados de la evaluación post-cosecha asociados a una aplicación concreta: rendimiento, incremento, calidad, incidencia de plagas, vigor de planta, análisis de suelo, validación por investigador.
+
+**Atributos:**
+
+- `id`, `aplicacion` (link a AplicacionCampo), `fechaEvaluacion`, `rendimiento`, `incrementoPorcentual`, `calidadProducto`, `incidenciaPlagas`, `efectividadControl`, `vigorPlanta`, `desarrolloVegetativo`, `costoProduccion`, `analisisSueloPost`, `validado`, `investigadorValidador`.
+    
+
+**Métodos:**
+
+- `mostrarTodos()` — para mostrar la lista en HU#6 con formatos y etiquetas coloreadas (vigor, validado).
+    
+- `insertar(EvaluacionResultado e)` — registrar evaluación, validar rangos numéricos (efectividad 0–100%, rendimiento >0, etc.).
+    
+- `modificar` / `eliminar` — soporte administrativo.
+    
+
+**Relaciones:**
+
+- `EvaluacionResultado --> AplicacionCampo` (evaluación pertenece a una aplicación registrada).
+    
+
+**Interacción con controlador y vista:**
+
+- En el formulario de registro (HU#7), la vista pide al controlador la lista de `AplicacionCampo` disponibles para seleccionar la aplicada a evaluar.
+    
+- Al guardar, `ControladorPrincipal.registrarResultado(r)` valida: si `validado==true` entonces `investigadorValidador` debe ser seleccionado. Luego llama a `EvaluacionResultado.insertar(r)`.
+    
+- La vista de resultados (HU#6) usa `ctrl.listarResultados()` para llenar la tabla y mostrar etiquetas coloreadas según reglas (por ejemplo, `vigorPlanta=="Muy Alto"` → etiqueta verde).
+    
+
+**Validaciones prácticas:**
+
+- `fechaEvaluacion` formato dd-mm-aaaa.
+    
+- `rendimiento` > 0; `efectividadControl` entre 0 y 100; `costoProduccion` >= 0.01; si `validado==true` entonces `investigadorValidador` obligatorio.
+    
 
 ---
 
-### **`CatalogoAplicacion`**
-**Propósito**: Provee una **vista consolidada para el Director Provincial MINAG**, tal como se describe en HU #3: _“Catálogo consolidado… con resultado (Éxito/Moderado/Fallido)”_.
+## 8) **CatalogoAplicacion**
 
- **Atributos**
-- `id`: Identificador único.
-- `entidad`: Entidad consumidora.
-- `bioproducto`: Bioproducto aplicado.
-- `cultivo`: Cultivo objetivo.
-- `resultado`: Estado resumido (“Éxito”, “Moderado”, “Fallido”), derivado de los datos de `EvaluacionResultado`.
+**Historias de usuario relacionadas:**
 
-**Métodos**
-- `+ mostrarTodos()`: Muestra todos los registros (HU #3).
-- `+ filtrarPorEntidad(...)`: Búsqueda dinámica por nombre de entidad (HU #3).
-- `+ filtrarPorBioproducto(...)`: Filtro por bioproducto (HU #3).
-- `- insertar(...)`, `- modificar(...)`, `- eliminar(...)`: **Todos privados**, ya que el catálogo es **de solo lectura** y **no se edita directamente**.
+- HU #3: Consultar Catálogo Consolidado de Bioproductos por Entidad y Cultivo
+    
+
+**Responsabilidad:**  
+Entidad que consolida registros por entidad, bioproducto y cultivo y almacena un resultado agregado (Éxito, Moderado, Fallido). Sirve para la vista de catálogo consolidado que permite búsqueda por entidad y filtrado por bioproducto.
+
+**Atributos:**
+
+- `id`, `entidad`, `bioproducto`, `cultivo`, `resultado` (string o enum para estado).
+    
+
+**Métodos:**
+
+- `mostrarTodos()` — devuelve listado para tabla del catálogo.
+    
+- `filtrarPorEntidad(String nombre)` — implementa búsqueda dinámica por entidad (HU#3 exige campo "Buscar por entidad").
+    
+- `filtrarPorBioproducto(String idBio)` — filtro desplegable por bioproducto.
+    
+
+**Relaciones:**
+
+- `CatalogoAplicacion --> Bioproducto`
+    
+- `CatalogoAplicacion --> Cultivo`
+    
+- `CatalogoAplicacion --> EntidadConsumidora`
+    
+
+**Interacción con controlador y vista:**
+
+- Vista de catálogo (IConsultarCatalogo) llama a `ControladorPrincipal.listarCatalogo()` o a `filtrarCatalogoPorEntidad(nombre)`; el controlador invoca `CatalogoAplicacion.*` y devuelve los datos con el recuento “Mostrando X de Y registros”.
+    
+- La vista presenta botones/etiquetas coloreadas según `resultado` (verde/naranja/rojo).
+    
+
+**Validaciones prácticas:**
+
+- `resultado` ser uno de los valores permitidos (Éxito/Moderado/Fallido).
+    
+- Filtrado eficiente (preferible delegar a BD con índices).
 
 
 
